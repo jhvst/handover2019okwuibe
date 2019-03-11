@@ -1,0 +1,56 @@
+
+<html>
+<body>
+<video id="video1" width="320" height="160" playsinline autoplay muted></video> <br />
+Browser base64 Session Description <textarea id="localSessionDescription" readonly="true"></textarea> <br />
+Golang base64 Session Description: <textarea id="remoteSessionDescription"></textarea> <br/>
+<button onclick="window.startSession()"> Start Session </button>
+<div id="remoteVideos"></div> <br />
+
+<div id="logs"></div>
+<script>
+  /* eslint-env browser */
+
+  let pc = new RTCPeerConnection({iceServers: [{urls: 'stun:stun.l.google.com:19302'}]})
+  var log = msg => {
+    document.getElementById('logs').innerHTML += msg + '<br>'
+  }
+
+  navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+    .then(stream => pc.addStream(document.getElementById('video1').srcObject = stream))
+    .catch(log)
+
+  pc.oniceconnectionstatechange = e => log(pc.iceConnectionState)
+  pc.onicecandidate = event => {
+    if (event.candidate === null) {
+      function reqListener () {
+        console.log(this.responseText)
+        try {
+          pc.setRemoteDescription(new RTCSessionDescription(JSON.parse(atob(this.responseText))))
+        } catch (e) {
+          alert(e)
+        }
+      }
+
+      var oReq = new XMLHttpRequest();
+      oReq.addEventListener("load", reqListener);
+      oReq.open("GET", "http://localhost:8080/"+btoa(JSON.stringify(pc.localDescription)));
+      oReq.send();
+    }
+  }
+
+  pc.onnegotiationneeded = e =>
+    pc.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: false }).then(d => pc.setLocalDescription(d)).catch(log)
+
+pc.ontrack = function (event) {
+  var el = document.createElement(event.track.kind)
+  el.srcObject = event.streams[0]
+  el.autoplay = true
+  el.controls = true
+
+  document.getElementById('remoteVideos').appendChild(el)
+}
+
+  </script>
+</body>
+</html>
