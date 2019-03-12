@@ -1,10 +1,6 @@
-
 <html>
 <body>
 <video id="video1" width="320" height="160" playsinline autoplay muted></video> <br />
-Browser base64 Session Description <textarea id="localSessionDescription" readonly="true"></textarea> <br />
-Golang base64 Session Description: <textarea id="remoteSessionDescription"></textarea> <br/>
-<button onclick="window.startSession()"> Start Session </button>
 <div id="remoteVideos"></div> <br />
 
 <div id="logs"></div>
@@ -42,14 +38,14 @@ Golang base64 Session Description: <textarea id="remoteSessionDescription"></tex
   pc.onnegotiationneeded = e =>
     pc.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: false }).then(d => pc.setLocalDescription(d)).catch(log)
 
-pc.ontrack = function (event) {
-  var el = document.createElement(event.track.kind)
-  el.srcObject = event.streams[0]
-  el.autoplay = true
-  el.controls = true
+  pc.ontrack = function (event) {
+    var el = document.createElement(event.track.kind)
+    el.srcObject = event.streams[0]
+    el.autoplay = true
+    el.controls = true
 
-  document.getElementById('remoteVideos').appendChild(el)
-}
+    document.getElementById('remoteVideos').appendChild(el)
+  }
 
   </script>
 </body>
