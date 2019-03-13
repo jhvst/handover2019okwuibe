@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"math/rand"
 	"net"
@@ -12,6 +13,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/pions/rtcp"
 	"github.com/pions/rtp"
 	"github.com/pions/rtp/codecs"
@@ -73,10 +75,20 @@ type KeyService struct {
 }
 
 func (svc *KeyService) handler(w http.ResponseWriter, r *http.Request) {
-	svc.recv <- r.URL.Path[1:]
+	vars := mux.Vars(r)
+	svc.recv <- vars["key"]
 	offer := <-svc.sndr
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	fmt.Fprintf(w, offer)
+}
+
+func (svc *KeyService) demo(w http.ResponseWriter, r *http.Request) {
+	body, err := ioutil.ReadFile("demo.html")
+	if err != nil {
+		fmt.Fprintf(w, "%s", err.Error())
+		return
+	}
+	fmt.Fprintf(w, string(body))
 }
 
 func main() {
@@ -88,8 +100,10 @@ func main() {
 	}
 
 	go func(svc KeyService) {
-		http.HandleFunc("/", svc.handler)
-		log.Fatal(http.ListenAndServe(":8080", nil))
+		r := mux.NewRouter()
+		r.HandleFunc("/demo", svc.demo)
+		r.HandleFunc("/keygen/{key}", svc.handler)
+		log.Fatal(http.ListenAndServe(":8080", r))
 	}(svc)
 
 	// Create a MediaEngine object to configure the supported codec
