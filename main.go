@@ -147,11 +147,8 @@ func main() {
 			}
 		}()
 
-		log.Println("recv track")
-
 		codec := track.Codec()
 		if codec.Name == webrtc.VP8 {
-			log.Println("Got VP8 track, saving to disk as output.ivf")
 			i, err := ivfwriter.NewWith(os.Stdout)
 			if err != nil {
 				log.Fatal(err)
@@ -203,8 +200,6 @@ func main() {
 	svc.sndr <- Encode(answer)
 	<-svc.ready
 
-	log.Println("streaming ready")
-
 	// open port for FFMPEG
 	udpAddr, err := net.ResolveUDPAddr("udp4", "0.0.0.0:1234")
 	if err != nil {
@@ -249,7 +244,4 @@ func main() {
 
 		i++
 	}
-
-	// Block forever
-	select {}
 }
