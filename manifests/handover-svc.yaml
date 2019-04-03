@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: handover-deployment
+  labels:
+    app: handover
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: handover
+  template:
+    metadata:
+      labels:
+        app: handover
+    spec:
+      containers:
+      - name: handover
+        image: gcr.io/{PROJECT_ID}/handover2019okwuibe:latest
+        ports:
+        - containerPort: 8080
