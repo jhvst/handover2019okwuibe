@@ -103,7 +103,7 @@ func main() {
 		r := mux.NewRouter()
 		r.HandleFunc("/demo", svc.demo)
 		r.HandleFunc("/keygen/{key}", svc.handler)
-		log.Fatal(http.ListenAndServe(":8080", r))
+		log.Fatal(http.ListenAndServeTLS(":8080", "server.crt", "server-key.pem", r))
 	}(svc)
 
 	// Create a MediaEngine object to configure the supported codec
